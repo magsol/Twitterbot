@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+  <table name="actions">
+    <column>name</column>
+    <column>active</column>
+    <column>last_run</column>
+    <column>next_run</column>
+    <column>total_run_count</column>
+    <row>
+      <value>MyAction</value>
+      <value>1</value>
+      <value>2011-04-22 12:30:00</value>
+      <value>2011-04-22 13:31:00</value>
+      <value>45</value>
+    </row>
+    <row>
+      <value>OtherAction</value>
+      <value>0</value>
+      <value>2011-04-01 00:00:01</value>
+      <value>2011-04-02 12:34:56</value>
+      <value>1</value>
+    </row>
+  </table>
+  <table name="posts">
+    <column>postid</column>
+    <column>text</column>
+    <column>user</column>
+    <column>date_saved</column>
+    <column>modeled</column>
+    <row>
+      <value>0</value>
+      <value>Modeled post</value>
+      <value>some1</value>
+      <value>2011-04-21 10:31:54</value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>1</value>
+      <value>This is a random-ass twitter post</value>
+      <value>derpderp</value>
+      <value>2011-04-22 12:30:31</value>
+      <value>0</value>
+    </row>
+    <row>
+      <value>2</value>
+      <value>@derpderp: sup mr random-ass bs</value>
+      <value>orly</value>
+      <value>2011-04-22 12:45:12</value>
+      <value>0</value>
+    </row>
+    <row>
+      <value>3</value>
+      <value>RT @orly this guy is a dumbass</value>
+      <value>derpderp</value>
+      <value>2011-04-22 13:03:34</value>
+      <value>0</value>
+    </row>
+    <row>
+      <value>4</value>
+      <value>@derpderp your bs posts are dumbass haha :)</value>
+      <value>orly</value>
+      <value>2011-04-22 16:46:23</value>
+      <value>0</value>
+    </row>
+    <row>
+      <value>5</value>
+      <value>@orly don't :) at me</value>
+      <value>derpderp</value>
+      <value>2011-04-22 19:16:36</value>
+      <value>0</value>
+    </row>
+  </table>
+  <table name="logs">
+    <column>eventid</column>
+    <column>eventtime</column>
+    <column>message</column>
+    <row>
+      <value>0</value>
+      <value>2011-04-22 13:51:36</value>
+      <value>This is a test message.</value>
+    </row>
+  </table>
+</dataset>

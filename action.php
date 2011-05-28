@@ -1,74 +1,136 @@
 <?php
 
-include_once('config.php');
-include_once('storage.php');
+defined('TWITTERBOT') or die('Restricted.');
+
+require_once('config.php');
+require_once('storage.php');
 
 /**
- * This is the default Action class for the Twitterbot. If you would like to 
- * create more specific Actions, extend this class and override the
- * public methods. If you want to change the default behavior, modify
- * this class.
+ * This is the abstract superclass that all other Twitterbot Actions must 
+ * extend. Namely, they require a "run" method that can be invoked from
+ * the main method of the application. All other implemented functions
+ * are at your discretion.
  * 
  * @author Shannon Quinn
  */
-class Action {
+abstract class Action {
   
-  // the OAuth object
-  protected static $oauth;
+  const FAILURE = 0;
+  const SUCCESS = 1;
   
-  protected $method;    // the HTTP method to use in this action
-  protected $call;      // the specific Twitter API call to make
-  protected $args;      // any arguments necessary for the Twitter API call
-  protected $delay;     // delay in between successive executions of this action
-  protected $name;      // some unique identifier for this action
-  protected $deps;      // identifiers for action dependencies
-  protected $result;    // stores the result of the action (for child classes)
+  protected $name; // name of the class
+  protected $isActive; // is this action active?
+  protected $timeout = 2; // minutes until this action times out
+  protected $nextAttempt; // specific time this event will fire next
+  protected $frequency; // minutes to increment the next firing time
+  protected $db; // the database
+  
+  protected $currentStatus = Action::SUCCESS;
+  protected $previousStatus = Action::SUCCESS;
   
   /**
-   * Sets up an Action object. If this class is extended, this constructor
-   * must still be called. The parameter consists of an element of the array 
-   * from the configuration file.
-   * @param array $action
+   * Default constructor. 
+   * @param string $name The name of this action.
+   * @param boolean $active Whether or not this action is active.
+   * @param array $params Key/value pairs of parameters.
    */
-  public function __construct($action) {
-    $this->method = $action['httpmethod'];
-    $this->call = $action['twittermethod'];
-    $this->args = $action['twitterargs'];
-    $this->delay = $action['delay'];
-    $this->name = $action['identifier'];
-    $this->deps = (isset($action['dependencies']) ? $action['dependencies'] : null);
-    if (!isset(Action::$oauth)) {
-      Action::$oauth = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET);
+  public function __construct($name, $active, $params) {
+    // assign all the variables
+    foreach ($params as $k => $v) {
+      $this->$k = $v;
     }
+    $this->name = $name;
+    $this->isActive = $active;
+    $this->setNextAttempt();
   }
   
   /**
-   * Performs this action. No data persistence is performed.
+   * This method also needs to be implemented by the subclasses. Dictates
+   * how the action runs.
+   * NOTE: If you need access to a database connection, do it in here!
+   * 
+   * @return Action::SUCCESS if the method runs successfully, Action::FAILURE otherwise.
    */
-  public function doAction() {
-    switch (strtoupper($this->method)) {
-      case 'GET':
-        $this->result = Action::$oauth->get($this->call, $this->args);
-        break;
-      case 'POST':
-        $this->result = Action::$oauth->post($this->call, $this->args);
-        break;
-      case 'DELETE':
-        $this->result = Action::$oauth->delete($this->call, $this->args);
-        break;
-      default:
-        die('ERROR: Unrecognized HTTP method "' . $this->method . '".');
-    }
+  public abstract function run();
+  
+  /**
+   * Calculates the time for the next firing of this action.
+   */
+  public function setNextAttempt() {
+    $this->nextAttempt = time() + ($this->frequency * 60);
   }
   
   /**
-   * If subclassed, this method *must* be overridden to provide installation
-   * requirements for the action in the database. The table the action uses
-   * is typically named by the $this->name field, but you can use whichever
-   * naming convention works for you (so long as the name does not already
-   * exist!). If your action does not require a database, then you can
-   * leave this method's body empty.
-   * @param string $name The name of the table to install in the database.
+   * Accessor for the nextAttempt field.
+   * @return The unix timestamp of when this action should fire.
    */
-  public static function install($name) {}
+  public function getNextAttempt() {
+    return $this->nextAttempt;
+  }
+  
+  /**
+   * Accessor for the timeout count.
+   * @return The number of seconds until this action should be timed out if
+   * it has not completed.
+   */
+  public function getTimeout() {
+    return $this->timeout * 60;
+  }
+  
+  /**
+   * This method can be called after the run() method to perform post-processing.
+   * In this case, it logs any failures (if the run() return value is 
+   * Action::FAILURE) and saves the necessary values to the database.
+   * @param int $status The return code from the child process exiting.
+   */
+  public function post_run($status) {
+    if (!isset($this->db)) { $this->db = Storage::getDatabase(); }
+    
+    // log the status of this action
+    if ($status !== $this->currentStatus) {
+      $this->previousStatus = $this->currentStatus;
+    }
+    if ($status === self::FAILURE) {
+      if ($this->currentStatus === self::FAILURE) {
+        // failed consecutive times
+        $this->db->log($this->name, "Still have not recovered from previous error!");
+      } else {
+        // this is the first time the action has failed
+        $this->db->log($this->name, "Error has occurred!");
+      }
+    } else {
+      // Action::SUCCESS. Log this only if the previous status
+      // was Action::FAILURE, so we know we've recovered from something.
+      if ($this->previousStatus === Action::FAILURE) {
+        $this->db->log($this->name, "Recovered from previous failure.");
+      }
+    }
+    // set the current status
+    $this->currentStatus = $status;
+  }
+  
+  /**
+   * Simple accessor for the state of this action.
+   * @return True if this Action is active, false otherwise.
+   */
+  public function isActive() {
+    return $this->isActive;
+  }
+  
+  /**
+   * Change the active state of this action. This is changed through
+   * signaling.
+   * @param boolean $state The new active state of this action (true or false).
+   */
+  public function setActive($state) {
+    $this->isActive = $state;
+  }
+  
+  /**
+   * Accessor for this action's name.
+   * @return The name (unique identifier) of this action.
+   */
+  public function getName() {
+    return $this->name;
+  }
 }

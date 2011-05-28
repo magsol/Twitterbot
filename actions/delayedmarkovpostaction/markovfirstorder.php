@@ -1,5 +1,12 @@
 <?php
  
+/**
+ * Implements a first-order Markov chain. Formally, this means:
+ * 
+ * P(some word | word1)
+ * 
+ * @author Shannon Quinn
+ */
 class MarkovFirstOrder {
  
   private $hash;
@@ -39,14 +46,9 @@ class MarkovFirstOrder {
       return '';
     }
     $subarr = $this->hash[$word];
- 
-    // w00t
     // calculate the sum of the counts of the next possibilities
-    $sum = 0;
-    foreach ($subarr as $count) {
-      $sum += $count;
-    }
- 
+    $sum = array_sum($subarr);
+
     // generate a random number in this range
     $rand = mt_rand(1, $sum);
  
