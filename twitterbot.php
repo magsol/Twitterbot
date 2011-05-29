@@ -19,6 +19,7 @@ class Twitterbot {
   private $actions = array(); // actions we're interested in running
   private $current = array(); // any actions currently running (child processes)
   private $aggregator; // the phirehose aggregator
+  private $aggregatorId; // phirehose aggregator process ID
   private $exit = false; // a flag to indicate when we're exiting
   private $db; // this object's own database handle
   
@@ -43,9 +44,6 @@ class Twitterbot {
         die('Twitterbot: ERROR: ' . $action['name'] . ' is not instantiable!');
       }
     }
-    
-    // now, set up the post aggregator they'll all use
-    $this->aggregator = new DataAggregator(BOT_ACCOUNT, BOT_PASSWORD, Phirehose::METHOD_SAMPLE);
   }
   
   /**
@@ -71,6 +69,35 @@ class Twitterbot {
   }
   
   /**
+   * Starts and detaches the aggregator process. Should be executed
+   * *before* loop() is called, if you want the aggregator to store
+   * new posts. If this method is not called beforehand, then no new
+   * posts will be saved.
+   * 
+   * @return int The PID for the aggregator.
+   */
+  public function runAggregator() {
+    // initialize the aggregator
+    $this->aggregator = new DataAggregator(BOT_ACCOUNT, BOT_PASSWORD, Phirehose::METHOD_SAMPLE);
+    
+    // spawn the process and detach it
+    if ($pid = pcntl_fork()) {
+      // parent process: record that this process is running
+      $this->aggregatorId = $pid;
+      // return the process ID
+      return $pid;
+    } else {
+      // child process: make this one an independent daemon as well
+      posix_setsid();
+      if (pcntl_fork()) { 
+        exit; 
+      }
+      // we are now completely independent from the original twitterbot process
+      exit($this->aggregator->consume());
+    }
+  }
+  
+  /**
    * This is the main function of this class. This registers any needed
    * signal handlers, starts an infinite loop, and fires any events
    * as they need to be fired.
@@ -83,32 +110,21 @@ class Twitterbot {
     pcntl_signal(SIGTERM, array($this, "sig_kill"));
     pcntl_signal(SIGINT, array($this, "sig_kill"));
     
-    // start the phirehose aggregator
-    if ($pid = pcntl_fork()) {
-      // parent process: record that this process is running
-      $this->current[$pid] = $this->aggregator;
-    } else {
-      // child process: make this one an independent daemon as well
-      posix_setsid();
-      if (pcntl_fork()) { exit; }
-      // we are now completely independent from the original twitterbot process
-      exit($this->aggregator->consume());
-    }
-    
     // now start all the other actions
     while (1) {
       // do we exit?
       if ($this->exit) {
-        break;
+        return;
       }
 
       // determine the next action that should fire
       $now = time();
       $action = $this->next();
       if ($action == null) {
-        // in this case, just the aggregator is running
-        sleep(1000);
-        continue; 
+        // in this case, just the aggregator is running, 
+        // so we can in fact safely quit!
+        $this->exit = true;
+        continue;
       }
       if ($now < $action->getNextAttempt()) {
         // sleep until the next action has to fire
@@ -117,8 +133,10 @@ class Twitterbot {
       }
       $action->setNextAttempt();
       if ($pid = pcntl_fork()) {
+        // parent process
         $this->current[$pid] = $action;
       } else {
+        // child process
         pcntl_alarm($action->getTimeout());
         exit($action->run());
       }
@@ -138,21 +156,7 @@ class Twitterbot {
       if (pcntl_wifexited($status) && pcntl_wexitstatus($status) == Action::SUCCESS) {
         $status = Action::SUCCESS;
       }
-      
-      // run the post-action commands
-      if ($action != $this->aggregator) {
-        $action->post_run($status);
-      } else {
-        if (!$this->exit) {
-          // the aggregator broke!
-          $this->db->log('Twitterbot.php', 'ERROR: The phirehose broke!');
-          $this->exit = true;
-          // NOTE: since this twitterbot is still experimental, I am opting
-          // to kill the entire bot in this case until I develop a better
-          // means of handling a broken phirehose
-
-        } // otherwise we have a graceful shutdown of Phirehose
-      }
+      $action->post_run($status);
     }
   }
   

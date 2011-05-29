@@ -49,11 +49,16 @@ posix_setsid();
 if (pcntl_fork()) {
   exit;
 }
-fwrite($fp, getmypid() . "\n");
-fflush($fp);
-
 // start the bot!
 $engine = new Twitterbot();
+$agId = $engine->runAggregator();
+
+// write the PIDs
+fwrite($fp, getmypid() . "\n");
+fwrite($fp, $agId . "\n");
+fflush($fp);
+
+// start the loop
 $engine->loop();
 
 // reaching this point means an exit command has been issued
@@ -184,13 +189,15 @@ function halt($lockfile) {
   if (!$contents) {
     die('ERROR: Failed to acquire lock. Twitterbot may not be running.' . "\n");
   }
-  $pid = intval($contents[0]);
-  echo 'got PID ' . $pid . "\n";
-  
-  // next, send a kill process; the handlers will take care of it from there
-  echo 'Killing the process...';
-  posix_kill($pid, SIGTERM);
-  echo 'shutdown complete!' . "\n";
+  $numpids = count($contents); // really should only be 2
+  for ($i = 0; $i < $numpids; $i++) {
+    // first, get the PID (should only be 1 of 2)
+    $pid = intval($contents[$i]);
+    echo 'got PID ' . $pid . ", killing the process\n";
+    // next, send a kill process; the handlers will take care of it from there
+    posix_kill($pid, SIGTERM);
+  }
+  echo 'Shutdown complete!' . "\n";
 }
 
 ?>
