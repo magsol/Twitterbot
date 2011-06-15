@@ -3,7 +3,6 @@
 defined('TWITTERBOT') or die('Restricted.');
 
 require_once('config.php');
-require_once('storage.php');
 require_once(ACTIONS . 'aggregator.php');
 
 /**
@@ -20,14 +19,12 @@ class Twitterbot {
   private $current = array(); // any actions currently running (child processes)
   private $aggregator; // the phirehose aggregator
   private $exit = false; // a flag to indicate when we're exiting
-  private $db; // this object's own database handle
 
   /**
    * Initializes the engine.
    */
   public function __construct() {
     global $actions; // pull in the actions array from the configuration
-    $this->db = Storage::getDatabase();
 
     // first, initialize all the user-specified actions
     foreach ($actions as $action) {

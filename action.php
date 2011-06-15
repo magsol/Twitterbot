@@ -87,7 +87,7 @@ abstract class Action {
    * @param int $status The return code from the child process exiting.
    */
   public function post_run($status) {
-    if (!isset($this->db)) { $this->db = Storage::getDatabase(); }
+    $this->db = Storage::getDatabase();
 
     // log the status of this action
     if ($status !== $this->currentStatus) {
@@ -111,6 +111,9 @@ abstract class Action {
     }
     // set the current status
     $this->currentStatus = $status;
+
+    // destroy the database connection
+    unset($this->db);
   }
 
   /**

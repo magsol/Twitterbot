@@ -2,6 +2,7 @@
 
 defined('TWITTERBOT') or die('Restricted.');
 
+include_once(UTIL . 'TwitterAPI.php');
 include_once(UTIL . 'translate.php');
 include_once(ACTIONS . 'delayedmarkovpostaction' . DIRECTORY_SEPARATOR .
   'markovsecondorder.php');
@@ -43,13 +44,14 @@ class DelayedMarkovPostAction extends Action {
     foreach ($args as $k => $v) {
       $this->$k = $v;
     }
+    $this->setNextAttempt();
   }
 
   /**
    * @see Action::run()
    */
   public function run() {
-    if (!isset($this->db)) { $this->db = Storage::getDatabase(); }
+    $this->db = Storage::getDatabase();
 
     /*** PART 1: Read from saved posts and construct a markov chain ***/
     $posts = $this->db->getPosts($this->useOnlyUnmodeledPosts);
@@ -61,10 +63,13 @@ class DelayedMarkovPostAction extends Action {
 
     /*** PART 3: Translate the post and send it, if the API key was set ***/
     $API = TwitterAPI::getTwitterAPI();
-    if (isset($this->googlekey)) {
-      $thepost = Translate::translate($thepost, 'en', $this->googlekey);
+    if (isset($this->googleKey)) {
+      $thepost = Translate::translate($thepost, 'en', $this->googleKey);
     }
     $API->update($thepost);
+
+    // destroy the database connection
+    unset($this->db);
 
     // all done
     return parent::SUCCESS;
@@ -127,7 +132,7 @@ class DelayedMarkovPostAction extends Action {
     $word1 = '_START1_';
     $word2 = '_START2_';
     $next = '';
-    $thepost = '';
+    $thepost = 'TESTING: ';
     while (($next = $markov->get($word1, $word2)) != '_STOP_') {
       $temp = $thepost . $next;
       if (strlen($temp) > 140) {

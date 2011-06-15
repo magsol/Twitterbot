@@ -191,7 +191,7 @@ function printHelp() {
  */
 function halt($lockfile) {
   // first, read the PID from the lockfile
-  echo 'Reading the lockfile...';
+  echo 'Reading the lockfile...' . "\n";
   $contents = @file($lockfile);
   if (!$contents) {
     die('ERROR: Failed to acquire lock. Twitterbot may not be running.' . "\n");
@@ -200,7 +200,7 @@ function halt($lockfile) {
   for ($i = 0; $i < $numpids; $i++) {
     // first, get the PID (should only be 1 of 2)
     $pid = intval($contents[$i]);
-    echo 'got PID ' . $pid . ", killing the process\n";
+    echo 'killing PID ' . $pid . "\n";
     // next, send a kill process; the handlers will take care of it from there
     posix_kill($pid, SIGTERM);
   }
