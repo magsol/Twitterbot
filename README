@@ -9,7 +9,65 @@ Project Wiki: http://magsolweb.net/wiki/index.php5?title=SpamBot
 Git repository: https://github.com/magsol/Twitterbot
 Version: 2.0 (alpha)
 
-= NOTES =
+== OVERVIEW ==
+
+The general idea here is to provide a framework by which you can implement
+as simple or complex a twitterbot as you like without having to worry about
+anything but the specific behavior you want to implement. If you want a bot
+that does nothing but sample the public timeline, you can practically use
+this framework out of the box. If you want a box that reads posts, makes
+posts, adds friends, changes its profile, and develops a cure for cancer you
+can absolutely do that too (though it may take a bit of work). The point
+is you'll only have to focus on implementing that specific behavior; everything
+else (in theory :P ) has been taken care of.
+
+The core of this framework is the concept of an "Action": ideally, it 
+encapsulates a single concrete activity the twitterbot performs (posting,
+or direct messaging, or changing background images, etc). In order to create
+a new action, you begin by subclassing the Action class.
+
+Say we want our bot to post the current time and a "Hello!" message every hour.
+We begin by defining this class as follows:
+
+    require_once(BOTROOT . 'action.php');
+    class ClockAction extends Action {
+
+We are then required to implement at least two other methods: a
+constructor and a run() method:
+
+    public function __construct($name, $active, $params) {
+      $this->name = $name;
+      $this->isActive = $active;
+      foreach ($params as $k => $v) {
+        $this->$k = $v;
+      }
+      parent::__construct($name, $active, array()); // recommended!
+    }
+
+    public function run() {
+      // do stuff here that will post hourly update
+      // hint: make use of util/TwitterAPI.php
+      
+      // if the action completes without any errors,
+      // return parent::SUCCESS. otherwise, return parent::FAILURE
+      return parent::SUCCESS;
+    }
+    
+With this basic framework, you can extend it to do just about anything
+you'd like. Set $this->frequency in the __construct() method you wrote
+to provide a different frequency of your Action firing; or, for even
+greater control, override the setNextAttempt() method to completely
+redefine the frequency with which your Action fires. You can override
+the post_run() method to perform any custom post-Action clean-up or
+logging.
+
+Put your ClockAction.php file into the actions/ folder (along with
+any additional dependencies it may require), and point this Twitterbot
+to it by setting up config.php to point to it (details below in the
+SETUP section, step 1). Once this is complete, fire up the bot's daemon, 
+sit back, and let the Twitter trolling begin :)
+
+== NOTES ==
 
 THIS IS STILL VERY MUCH EXPERIMENTAL AND NOT PARTICULARLY ROBUST. I implemented
 the process control without much previous experience in it (most of my experience
@@ -19,7 +77,7 @@ rough around the edges, particularly with the database connection management.
 If you encounter any bugs, please don't hesitate to report them, either to the
 github page, or you can email me: magsol at gmail.
 
-= REQUIREMENTS =
+== REQUIREMENTS ==
 
 In order to run this bot, you need:
 
@@ -28,7 +86,7 @@ In order to run this bot, you need:
 -MySQL 5.x (though will probably work with 4.x)
 -A brave soul
 
-= SETUP =
+== SETUP ==
 
 1) Fill out the necessary fields in config.php (there are several).
 -BOT_ACCOUNT: The display name for your bot.
@@ -91,7 +149,7 @@ and its child processes, run the command:
 
 php run.php --stop
 
-= ACKNOWLEDGEMENTS =
+== ACKNOWLEDGEMENTS ==
 
 There are several people who made this project possible.
 
@@ -114,3 +172,8 @@ the data rather than finding ways of crawling Twitter. Keep up the good work.
 of a phenomenal unit-testing framework for PHP, it's still on my to-do list to incporporate
 it into this bot's testing. It will definitely happen, and this guy has made it a lot
 easier.
+
+-[AUTHOR] of "Advanced PHP Programming", from which I learned just about every
+trick in this project for process management, particularly in setting up
+the structure for the Twitterbot and Action classes. It was a phenomenal
+resource and made the daemon aspect of this project feasible.

@@ -20,24 +20,24 @@ $actions = array(
   // for each action, define an array with the following elements:
   /*
   array('name' => 'Name of your custom action',     // Can be anything you want!
-        
+
         'class' => 'CaseSensitiveNameOfClass',      // The case-sensitive name of
                                                     // the action class you
                                                     // wrote.
 
-		'file' => 'name_of_php_file.php',			// The name of the PHP file
-													// (with the .php extension)
-													// of the file containing your
-													// custom action class.
+        'file' => 'name_of_php_file.php',			      // The name of the PHP file
+                                                    // (with the .php extension)
+                                                    // of the file containing your
+                                                    // custom action class.
 
-        'active' => true | false,					// Determines whether this
+        'active' => true | false,                   // Determines whether this
                                                     // action will run or not.
                                                     // If true, this action will
                                                     // execute. If false, it
                                                     // will be ignored.
         
         'args' => array('Any additional arguments'),// An array of  any additional 
-													// arguments specific to
+                                                    // arguments specific to
                                                     // your custom action.
   ),
   */

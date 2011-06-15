@@ -19,7 +19,6 @@ class Twitterbot {
   private $actions = array(); // actions we're interested in running
   private $current = array(); // any actions currently running (child processes)
   private $aggregator; // the phirehose aggregator
-  private $aggregatorId; // phirehose aggregator process ID
   private $exit = false; // a flag to indicate when we're exiting
   private $db; // this object's own database handle
   
@@ -83,7 +82,6 @@ class Twitterbot {
     // spawn the process and detach it
     if ($pid = pcntl_fork()) {
       // parent process: record that this process is running
-      $this->aggregatorId = $pid;
       // return the process ID
       return $pid;
     } else {
@@ -93,6 +91,7 @@ class Twitterbot {
         exit; 
       }
       // we are now completely independent from the original twitterbot process
+      $this->aggregator->initSignalHandler();
       exit($this->aggregator->consume());
     }
   }
@@ -149,7 +148,6 @@ class Twitterbot {
    */
   private function sig_child($signal) {
     $status = Action::FAILURE;
-    pcntl_signal(SIGCHLD, array($this, "sig_child"));
     while (($pid = pcntl_wait($status, WNOHANG)) > 0) {
       $action = $this->current[$pid];
       unset($this->current[$pid]);

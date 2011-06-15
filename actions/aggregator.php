@@ -26,8 +26,18 @@ class DataAggregator extends Phirehose {
    * @param string $password
    */
   public function __construct($username, $password) {
-    pcntl_signal(SIGTERM, array($this, 'sig_term'));
     return parent::__construct($username, $password, Phirehose::METHOD_SAMPLE);
+  }
+  
+  /**
+   * Helper method. It's kind of a hack job, since we want the Twitterbot
+   * object to have access to the Aggregator object before the process
+   * forking occurs, but the signal handling has to be specified *after*
+   * the process is forked. Hence, a separate method from the constructor
+   * for the latter. Just call this method once its process has been forked.
+   */
+  public function initSignalHandler() {
+    pcntl_signal(SIGTERM, array($this, 'sig_term'));
   }
   
   /**
