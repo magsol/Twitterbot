@@ -173,7 +173,7 @@ of a phenomenal unit-testing framework for PHP, it's still on my to-do list to i
 it into this bot's testing. It will definitely happen, and this guy has made it a lot
 easier.
 
--[AUTHOR] of "Advanced PHP Programming", from which I learned just about every
-trick in this project for process management, particularly in setting up
+-George Schlossnagle of "Advanced PHP Programming", from which I learned just about 
+every trick in this project for process management, particularly in setting up
 the structure for the Twitterbot and Action classes. It was a phenomenal
 resource and made the daemon aspect of this project feasible.
