@@ -69,7 +69,7 @@ fclose($fp);
 /**
  * Helper method for parsing command line arguments. Taken from the
  * George Schlossnagle book "Advanced PHP Programming" (2004), chpt 5.
- * 
+ *
  * @param array $default_opt
  * @param string $shortoptions
  * @param array $longoptions
@@ -119,29 +119,34 @@ function test() {
   }
   echo 'passed!' . "\n";
   mysql_close($db);
-  
+
   // test Twitter OAuth settings
   echo 'Testing OAuth credentials...';
-  $obj = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET);
+  $obj = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN,
+    OAUTH_TOKEN_SECRET);
   $retval = $obj->get('account/verify_credentials');
   if (!is_object($retval) || !isset($retval->name)) {
-    die('ERROR: Unable to successfully establish an OAuth connection with Twitter.' . "\n");
+    die('ERROR: Unable to successfully establish an OAuth connection with' .
+     ' Twitter.' . "\n");
   }
   if ($retval->screen_name != BOT_ACCOUNT) {
-    die('ERROR: The BOT_ACCOUNT indicated in configuration differs from what the Twitter API said.' . "\n");  
+    die('ERROR: The BOT_ACCOUNT indicated in configuration differs from' .
+     ' what the Twitter API said.' . "\n");
   } else {
     echo 'passed!' . "\n";
   }
-  
+
   // test the actions listed in the configuration file
   global $actions;
   foreach ($actions as $action) {
-    echo 'Found action ' . $action['name'] . ', checking that all required fields are set...';
-    if (isset($action['name']) && isset($action['file']) && 
+    echo 'Found action ' . $action['name'] . ', checking that all required ' .
+      'fields are set...';
+    if (isset($action['name']) && isset($action['file']) &&
         isset($action['class']) && isset($action['active'])) {
       echo "passed!\n";
     } else {
-      die('ERROR: One or more required fields are missing in your config.php for an action.' . "\n");
+      die('ERROR: One or more required fields are missing in your ' .
+        'config.php for an action.' . "\n");
     }
     echo 'Checking instantiability of ' . $action['class'] . '...';
     if (!file_exists(ACTIONS . $action['file'])) {
@@ -154,11 +159,12 @@ function test() {
     }
     echo 'passed!' . "\n";
   }
-  
+
   // finally, test a few PHP dependencies
   echo 'Looking for pcntl_fork()...';
   if (!function_exists('pcntl_fork')) {
-    die('ERROR: pcntl_fork() is undefined. Please check your PHP configuration.' . "\n");
+    die('ERROR: pcntl_fork() is undefined. Please check your PHP ' .
+      'configuration.' . "\n");
   }
   echo 'passed!' . "\n";
 }
@@ -169,12 +175,13 @@ function test() {
  */
 function printHelp() {
   $retval = "Twitterbot, v2.0\n\n" .
-            "php run.php [--start | --stop | --tests-only | --tests-skip | -h ]\n\n" .  
-            "--start\t\t\tStart the twitterbot daemon\n" .
-            "--stop\t\t\tStop the twitterbot daemon\n" .
-            "--tests-only\t\tExecute the pre-process tests and exit\n" .
-            "--tests-skip\t\tDon't run any tests before launching the daemon\n" .
-            "-h\t\t\tPrints this help\n";
+    "php run.php [--start | --stop | --tests-only | --tests-skip " .
+    "| -h ]\n\n" .
+    "--start\t\t\tStart the twitterbot daemon\n" .
+    "--stop\t\t\tStop the twitterbot daemon\n" .
+    "--tests-only\t\tExecute the pre-process tests and exit\n" .
+    "--tests-skip\t\tDon't run any tests before launching the daemon\n" .
+    "-h\t\t\tPrints this help\n";
   return $retval;
 }
 

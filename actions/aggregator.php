@@ -9,17 +9,17 @@ require_once(PHIREHOSE . 'Phirehose.php');
  * This class handles reading from the Streaming API and saving any
  * posts it receives. It makes use of the Phirehose PHP implementation
  * for reading the streaming API and ensuring good behavior.
- * 
+ *
  * Phirehose: http://code.google.com/p/phirehose/
  * Streaming API: http://dev.twitter.com/pages/streaming_api
- * 
+ *
  * @author Shannon Quinn
  */
 class DataAggregator extends Phirehose {
-  
+
   /** a database handle for storing the data */
   private $db;
-  
+
   /**
    * Overridden constructor for initializing the database connection.
    * @param string $username
@@ -28,7 +28,7 @@ class DataAggregator extends Phirehose {
   public function __construct($username, $password) {
     return parent::__construct($username, $password, Phirehose::METHOD_SAMPLE);
   }
-  
+
   /**
    * Helper method. It's kind of a hack job, since we want the Twitterbot
    * object to have access to the Aggregator object before the process
@@ -39,21 +39,21 @@ class DataAggregator extends Phirehose {
   public function initSignalHandler() {
     pcntl_signal(SIGTERM, array($this, 'sig_term'));
   }
-  
+
   /**
    * (non-PHPdoc)
    * @see util/Phirehose::enqueueStatus()
    */
   public function enqueueStatus($status) {
     if (!isset($this->db)) { $this->db = Storage::getDatabase(); }
-    
+
     // save the status
     $data = json_decode($status, true);
     if (is_array($data) && isset($data['user']['screen_name'])) {
       $this->db->savePost($data['text'], $data['user']['screen_name']);
     }
   }
-  
+
   /**
    * (non-PHPdoc)
    * @see util/Phirehose::log()
@@ -62,7 +62,7 @@ class DataAggregator extends Phirehose {
     if (!isset($this->db)) { $this->db = Storage::getDatabase(); }
     $this->db->log('Phirehose', $message);
   }
-  
+
   /**
    * Signal handler for this object.
    * @param int $signal

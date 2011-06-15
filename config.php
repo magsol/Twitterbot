@@ -21,24 +21,25 @@ $actions = array(
   /*
   array('name' => 'Name of your custom action',     // Can be anything you want!
 
-        'class' => 'CaseSensitiveNameOfClass',      // The case-sensitive name of
-                                                    // the action class you
+        'class' => 'CaseSensitiveNameOfClass',      // The case-sensitive name
+                                                    // of the action class you
                                                     // wrote.
 
-        'file' => 'name_of_php_file.php',			      // The name of the PHP file
+        'file' => 'name_of_php_file.php',           // The name of the PHP file
                                                     // (with the .php extension)
-                                                    // of the file containing your
-                                                    // custom action class.
+                                                    // of the file containing
+                                                    // your custom action class.
 
         'active' => true | false,                   // Determines whether this
                                                     // action will run or not.
                                                     // If true, this action will
                                                     // execute. If false, it
                                                     // will be ignored.
-        
-        'args' => array('Any additional arguments'),// An array of  any additional 
-                                                    // arguments specific to
-                                                    // your custom action.
+
+        'args' => array('Any additional arguments'),// An array of any
+                                                    // additional arguments
+                                                    // specific to your custom
+                                                    // action.
   ),
   */
 );
@@ -54,10 +55,13 @@ define('DB_PASS', 'your db pass here');         // password for the username
 // ----------------------------------------------------------- //
 
 define('BOTROOT', __DIR__);
-define('ACTIONS', BOTROOT . DIRECTORY_SEPARATOR . 'actions' . DIRECTORY_SEPARATOR);
+define('ACTIONS', BOTROOT . DIRECTORY_SEPARATOR . 'actions' .
+  DIRECTORY_SEPARATOR);
 define('UTIL', BOTROOT . DIRECTORY_SEPARATOR . 'util' . DIRECTORY_SEPARATOR);
-define('OAUTH', BOTROOT . DIRECTORY_SEPARATOR . 'twitteroauth' . DIRECTORY_SEPARATOR);
-define('PHIREHOSE', BOTROOT . DIRECTORY_SEPARATOR . 'phirehose' . DIRECTORY_SEPARATOR);
+define('OAUTH', BOTROOT . DIRECTORY_SEPARATOR . 'twitteroauth' .
+  DIRECTORY_SEPARATOR);
+define('PHIREHOSE', BOTROOT . DIRECTORY_SEPARATOR . 'phirehose' .
+  DIRECTORY_SEPARATOR);
 define('POST_TABLE', 'posts');
 define('LOG_TABLE', 'logs');
 
