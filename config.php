@@ -54,6 +54,7 @@ define('DB_PASS', 'your db pass here');         // password for the username
 // -- That's it! Don't change anything else below this line -- //
 // ----------------------------------------------------------- //
 
+define('TWITTERBOT_LOCKFILE', '/tmp/.bot_lockfile');
 define('BOTROOT', __DIR__);
 define('ACTIONS', BOTROOT . DIRECTORY_SEPARATOR . 'actions' .
   DIRECTORY_SEPARATOR);

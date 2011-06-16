@@ -27,7 +27,7 @@ class DelayedMarkovPostAction extends Action {
   private $delayMean = 45;
   private $delayVar = 1;
   private $googleKey;
-  private $useOnlyUnmodeledPosts = true;
+  private $useOnlyUnmodeledPosts = false;
 
   /**
    * Constructor
@@ -56,6 +56,11 @@ class DelayedMarkovPostAction extends Action {
     /*** PART 1: Read from saved posts and construct a markov chain ***/
     $posts = $this->db->getPosts($this->useOnlyUnmodeledPosts);
     $markov = $this->buildMarkovChain($posts);
+    if ($this->useOnlyUnmodeledPosts && count($posts) > 0) {
+      $recent_date = $posts[0]['date_saved'];
+      $old_date = $posts[count($posts) - 1]['date_saved'];
+      $this->db->markPostsModeled($old_date, $recent_date);
+    }
 
     /*** PART 2: now that we have our markov chain built, sample from it to
      * build the post ***/
@@ -132,7 +137,7 @@ class DelayedMarkovPostAction extends Action {
     $word1 = '_START1_';
     $word2 = '_START2_';
     $next = '';
-    $thepost = 'TESTING: ';
+    $thepost = '';
     while (($next = $markov->get($word1, $word2)) != '_STOP_') {
       $temp = $thepost . $next;
       if (strlen($temp) > 140) {

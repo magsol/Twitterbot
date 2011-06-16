@@ -8,8 +8,6 @@ require_once('twitterbot.php');
 require_once('action.php');
 require_once(OAUTH . 'twitteroauth.php');
 
-$lockfile = '/tmp/.bot_lockfile';
-
 $shortoptions = "h";
 $longoptions = array('start', 'stop', 'tests-only', 'tests-skip');
 $default_opts = array('--start' => 1);
@@ -22,7 +20,7 @@ if (array_key_exists('h', $args)) {
 if (array_key_exists('--stop', $args)) {
   // stop has been set! try to kill it
   echo "\n" . '==SHUTTING DOWN TWITTERBOT==' . "\n";
-  halt($lockfile);
+  halt();
   exit;
 } else if (!array_key_exists('--tests-skip', $args)) {
   // run tests
@@ -35,7 +33,7 @@ if (array_key_exists('--stop', $args)) {
 echo "\n" . '==POWERING UP TWITTERBOT==' . "\n";
 
 // gain the lockfile
-$fp = fopen($lockfile, "a");
+$fp = @fopen(TWITTERBOT_LOCKFILE, "a");
 if (!$fp || !flock($fp, LOCK_EX | LOCK_NB)) {
   die("Failed to acquire lock. Twitterbot may already be running.\n");
 }
@@ -49,22 +47,19 @@ posix_setsid();
 if (pcntl_fork()) {
   exit;
 }
-// start the bot!
-$engine = new Twitterbot();
-$agId = $engine->runAggregator();
 
 // write the PIDs
 fwrite($fp, getmypid() . "\n");
-fwrite($fp, $agId . "\n");
 fflush($fp);
 
 // start the loop
+$engine = new Twitterbot();
 $engine->loop();
 
 // reaching this point means an exit command has been issued
 flock($fp, LOCK_UN);
 fclose($fp);
-@unlink($lockfile);
+@unlink(TWITTERBOT_LOCKFILE);
 
 /**
  * Helper method for parsing command line arguments. Taken from the
@@ -167,6 +162,12 @@ function test() {
       'configuration.' . "\n");
   }
   echo 'passed!' . "\n";
+  echo 'Looking for Console_Getopt...';
+  if (!class_exists('Console_Getopt')) {
+    die('ERROR: Console_Getopt not found. Please check your PEAR ' .
+      'configuration.' . "\n");
+  }
+  echo 'passed!' . "\n";
 }
 
 /**
@@ -187,23 +188,18 @@ function printHelp() {
 
 /**
  * This function attempts to gracefully shut down the program.
- * @param $lockfile The filename of the lockfile, where we find the PID.
  */
-function halt($lockfile) {
+function halt() {
   // first, read the PID from the lockfile
   echo 'Reading the lockfile...' . "\n";
-  $contents = @file($lockfile);
+  $contents = @file(TWITTERBOT_LOCKFILE);
   if (!$contents) {
     die('ERROR: Failed to acquire lock. Twitterbot may not be running.' . "\n");
   }
-  $numpids = count($contents); // really should only be 2
-  for ($i = 0; $i < $numpids; $i++) {
-    // first, get the PID (should only be 1 of 2)
-    $pid = intval($contents[$i]);
-    echo 'killing PID ' . $pid . "\n";
-    // next, send a kill process; the handlers will take care of it from there
-    posix_kill($pid, SIGTERM);
-  }
+  $pid = intval($contents[0]);
+  echo 'Found process with id ' . $pid . ', killing...' . "\n";
+  // next, send a kill process; the handlers will take care of it from there
+  posix_kill($pid, SIGTERM);
   echo 'Shutdown complete!' . "\n";
 }
 

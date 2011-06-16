@@ -32,10 +32,21 @@ class Translate {
     curl_setopt_array($ch, $options);
     $retval = json_decode(curl_exec($ch));
     curl_close($ch);
-    if (isset($retval->error)) {
+    if (isset($retval->error) ||
+      $retval->data->translations[0]->detectedSourceLanguage == 'en') {
       return $text;
     } else {
-      return $retval->data->translations[0]->translatedText;
+      // do a little clean-up on the @ tags
+      $matches = preg_match_all('/@([A-Za-z0-9_]+)/', $text, $usernames);
+      $translated = $retval->data->translations[0]->translatedText;
+      if ($matches == 0 || $matches === false) {
+        return $translated;
+      }
+      foreach ($usernames[1] as $index => $username) {
+        $pos = strpos($translated, $username);
+        $translated = substr_replace($translated, '@', $pos, 0);
+      }
+      return str_replace('@ ', '', $translated);
     }
   }
 }

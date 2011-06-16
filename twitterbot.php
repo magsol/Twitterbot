@@ -40,6 +40,8 @@ class Twitterbot {
         die('Twitterbot: ERROR: ' . $action['name'] . ' is not instantiable!');
       }
     }
+    $this->aggregator = new DataAggregator(BOT_ACCOUNT, BOT_PASSWORD,
+      Phirehose::METHOD_SAMPLE);
   }
 
   /**
@@ -65,36 +67,6 @@ class Twitterbot {
   }
 
   /**
-   * Starts and detaches the aggregator process. Should be executed
-   * *before* loop() is called, if you want the aggregator to store
-   * new posts. If this method is not called beforehand, then no new
-   * posts will be saved.
-   *
-   * @return int The PID for the aggregator.
-   */
-  public function runAggregator() {
-    // initialize the aggregator
-    $this->aggregator = new DataAggregator(BOT_ACCOUNT, BOT_PASSWORD,
-      Phirehose::METHOD_SAMPLE);
-
-    // spawn the process and detach it
-    if ($pid = pcntl_fork()) {
-      // parent process: record that this process is running
-      // return the process ID
-      return $pid;
-    } else {
-      // child process: make this one an independent daemon as well
-      posix_setsid();
-      if (pcntl_fork()) {
-        exit;
-      }
-      // we are now completely independent from the original twitterbot process
-      $this->aggregator->initSignalHandler();
-      exit($this->aggregator->consume());
-    }
-  }
-
-  /**
    * This is the main function of this class. This registers any needed
    * signal handlers, starts an infinite loop, and fires any events
    * as they need to be fired.
@@ -102,10 +74,16 @@ class Twitterbot {
   public function loop() {
     declare(ticks = 1);
 
+    // spin off the aggregator
+    if (($pid = pcntl_fork())) {
+      $this->current[$pid] = $this->aggregator;
+    } else {
+      exit($this->aggregator->consume());
+    }
+
     // set up signal handlers
     pcntl_signal(SIGCHLD, array($this, "sig_child"));
     pcntl_signal(SIGTERM, array($this, "sig_kill"));
-    pcntl_signal(SIGINT, array($this, "sig_kill"));
 
     // now start all the other actions
     while (1) {

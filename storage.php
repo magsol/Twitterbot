@@ -97,7 +97,7 @@ class Storage {
    * @return array List of twitter posts.
    */
   public function getPosts($unmodeled, $number = 0) {
-    $query = 'SELECT `text` FROM `' . DB_NAME . '`.`' . POST_TABLE . '`' .
+    $query = 'SELECT `text`, `date_saved` FROM `' . DB_NAME . '`.`' . POST_TABLE . '`' .
       (isset($unmodeled) && $unmodeled ? ' WHERE `modeled` = 0' : '') .
       ' ORDER BY `date_saved` DESC' . ($number > 0 ? ' LIMIT ' . $number : '');
     $this->setQuery($query);
@@ -114,6 +114,22 @@ class Storage {
       '` (text, user, date_saved, modeled) ' . 'VALUES ("' .
       mysql_real_escape_string(urldecode($status)) . '", "' .
       mysql_real_escape_string($user) . '", "' . date('Y-m-d H:i:s') . '", 0)';
+    $this->setQuery($sql);
+    $this->query();
+  }
+
+  /**
+   * Utility method for marking a large range of saved posts as "modeled".
+   * This works inclusively: the range of posts marked as "modeled" includes
+   * those with the timestamps.
+   *
+   * @param string $old_date The oldest date post to mark as modeled.
+   * @param string $recent_date The most recent date post.
+   */
+  public function markPostsModeled($old_date, $recent_date) {
+    $sql = 'UPDATE `' . DB_NAME . '`.`' . POST_TABLE .
+      '` SET modeled = 1 WHERE date_saved BETWEEN "' . $old_date .
+      '" AND "' . $recent_date . '"';
     $this->setQuery($sql);
     $this->query();
   }

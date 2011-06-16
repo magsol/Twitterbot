@@ -30,17 +30,6 @@ class DataAggregator extends Phirehose {
   }
 
   /**
-   * Helper method. It's kind of a hack job, since we want the Twitterbot
-   * object to have access to the Aggregator object before the process
-   * forking occurs, but the signal handling has to be specified *after*
-   * the process is forked. Hence, a separate method from the constructor
-   * for the latter. Just call this method once its process has been forked.
-   */
-  public function initSignalHandler() {
-    pcntl_signal(SIGTERM, array($this, 'sig_term'));
-  }
-
-  /**
    * (non-PHPdoc)
    * @see util/Phirehose::enqueueStatus()
    */
@@ -64,14 +53,16 @@ class DataAggregator extends Phirehose {
   }
 
   /**
-   * Signal handler for this object.
-   * @param int $signal
+   * Public method for shutting down the Phirehose.
+   * NOTE: Calling this method won't invoke an immediate shutdown.
+   * It will begin the process, but it is largely a matter of the Phisehose
+   * doing its thing to close all active connections and finish any
+   * in-process transactinos.
    */
-  private function sig_term($signal) {
-    // graceful shutdown
+  public function shutdown() {
+    $this->log("Shutdown command received.");
     $this->disconnect();
   }
 }
-//$data = new DataAggregator(BOT_ACCOUNT, BOT_PASSWORD, Phirehose::METHOD_SAMPLE);
-//$data->consume();
+
 ?>
