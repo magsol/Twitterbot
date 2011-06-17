@@ -34,7 +34,7 @@ class Storage {
    * @param string $name Database name
    */
   private function __construct($host, $user, $pass, $name) {
-    $this->db = @mysql_pconnect($host, $user, $pass);
+    $this->db = @mysql_connect($host, $user, $pass);
     if (!$this->db) {
       die('ERROR: Unable to access the database. ' . mysql_error() . "\n");
     }
@@ -68,7 +68,8 @@ class Storage {
     // what was the return value?
     if ($result === false) {
       // error!
-      die('ERROR: MySQL query failed. ' . mysql_error() . "\n");
+      die('ERROR: MySQL query failed. ' . mysql_error() . "\n---\n" .
+      $this->query . "\n");
     } else if ($result === true) {
       // update, insert, delete, etc statement, return the number of
       // affected rows
@@ -97,9 +98,10 @@ class Storage {
    * @return array List of twitter posts.
    */
   public function getPosts($unmodeled, $number = 0) {
-    $query = 'SELECT `text`, `date_saved` FROM `' . DB_NAME . '`.`' . POST_TABLE . '`' .
-      (isset($unmodeled) && $unmodeled ? ' WHERE `modeled` = 0' : '') .
-      ' ORDER BY `date_saved` DESC' . ($number > 0 ? ' LIMIT ' . $number : '');
+    $query = 'SELECT `text`, `date_saved` FROM `' . DB_NAME . '`.`' .
+      POST_TABLE . '`' . (isset($unmodeled) && $unmodeled ? ' WHERE ' .
+      '`modeled` = 0' : '') . ' ORDER BY `date_saved` DESC' . ($number > 0 ?
+      ' LIMIT ' . $number : '');
     $this->setQuery($query);
     return $this->query();
   }

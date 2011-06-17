@@ -99,7 +99,7 @@ class DelayedMarkovPostAction extends Action {
       $mean);
     if ($delay <= 0) { $delay = 1; } // sanity check
     $this->nextAttempt = time() + intval($delay * 60);
-    
+
     // log the next attempt
     $this->db = Storage::getDatabase();
     $this->db->log('DMPA', 'Next action firing set for ' . date('Y-m-d H:i:s',

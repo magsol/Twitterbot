@@ -41,7 +41,6 @@ abstract class Action {
     }
     $this->name = $name;
     $this->isActive = $active;
-    $this->setNextAttempt();
   }
 
   /**

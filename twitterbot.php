@@ -3,6 +3,7 @@
 defined('TWITTERBOT') or die('Restricted.');
 
 require_once('config.php');
+require_once('storage.php');
 require_once(ACTIONS . 'aggregator.php');
 
 /**
@@ -131,7 +132,15 @@ class Twitterbot {
         pcntl_wexitstatus($status) == Action::SUCCESS) {
         $status = Action::SUCCESS;
       }
-      $action->post_run($status);
+      if ($action != $this->aggregator) {
+        $action->post_run($status);
+      } else {
+        // the aggregator failed! this is a problem
+        $db = Storage::getDatabase();
+        $db->log('Twitterbot', 'Aggregator crashed! Exiting.');
+        unset($db);
+        exit;
+      }
     }
   }
 

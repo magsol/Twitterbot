@@ -51,18 +51,6 @@ class DataAggregator extends Phirehose {
     if (!isset($this->db)) { $this->db = Storage::getDatabase(); }
     $this->db->log('Phirehose', $message);
   }
-
-  /**
-   * Public method for shutting down the Phirehose.
-   * NOTE: Calling this method won't invoke an immediate shutdown.
-   * It will begin the process, but it is largely a matter of the Phisehose
-   * doing its thing to close all active connections and finish any
-   * in-process transactinos.
-   */
-  public function shutdown() {
-    $this->log("Shutdown command received.");
-    $this->disconnect();
-  }
 }
 
 ?>
