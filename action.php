@@ -106,6 +106,8 @@ abstract class Action {
       // was Action::FAILURE, so we know we've recovered from something.
       if ($this->previousStatus === Action::FAILURE) {
         $this->db->log($this->name, "Recovered from previous failure.");
+      } else {
+        $this->db->log($this->name, "Successful run!");
       }
     }
     // set the current status

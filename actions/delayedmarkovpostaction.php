@@ -19,6 +19,7 @@ include_once(ACTIONS . 'delayedmarkovpostaction' . DIRECTORY_SEPARATOR .
  * -useUnmodeledPosts: Use only unmodeled posts in the database to build the
  * markov chain.
  * -googlekey: Google API key, for using Google Translate
+ * -postLimit: Maximum number of posts to pull to build the markov chain.
  *
  * @author Shannon Quinn
  */
@@ -27,6 +28,7 @@ class DelayedMarkovPostAction extends Action {
   private $delayMean = 45;
   private $delayVar = 1;
   private $googleKey;
+  private $postLimit = 0;
   private $useOnlyUnmodeledPosts = false;
 
   /**
@@ -54,7 +56,8 @@ class DelayedMarkovPostAction extends Action {
     $this->db = Storage::getDatabase();
 
     /*** PART 1: Read from saved posts and construct a markov chain ***/
-    $posts = $this->db->getPosts($this->useOnlyUnmodeledPosts);
+    $posts = $this->db->getPosts($this->useOnlyUnmodeledPosts,
+      $this->postLimit);
     $markov = $this->buildMarkovChain($posts);
     if ($this->useOnlyUnmodeledPosts && count($posts) > 0) {
       $recent_date = $posts[0]['date_saved'];
@@ -102,8 +105,8 @@ class DelayedMarkovPostAction extends Action {
 
     // log the next attempt
     $this->db = Storage::getDatabase();
-    $this->db->log('DMPA', 'Next action firing set for ' . date('Y-m-d H:i:s',
-      $this->nextAttempt));
+    $this->db->log($this->getName(), 'Next action firing set for ' .
+      date('Y-m-d H:i:s', $this->nextAttempt));
     unset($this->db);
   }
 
