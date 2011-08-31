@@ -2,30 +2,30 @@
 
 define('TWITTERBOT', 1);
 
-require_once('Console/Getopt.php');
 require_once('config.php');
 require_once('twitterbot.php');
 require_once('action.php');
 require_once(OAUTH . 'twitteroauth.php');
 
-$shortoptions = "h";
-$longoptions = array('start', 'stop', 'tests-only', 'tests-skip');
-$default_opts = array('--start' => 1);
-$args = getOptions($default_opts, $shortoptions, $longoptions);
-
 // which args are present?
-if (array_key_exists('h', $args)) {
-  die(printHelp());
+if (count($argv) > 2 || in_array('-h', $argv) || in_array('--help', $argv)) {
+	die(printHelp());
 }
-if (array_key_exists('--stop', $args)) {
+
+// One final sanity check: make sure the user wanted this thing to start.
+if (count($argv) == 2 && !in_array('--start', $argv)) {
+	die(printHelp());
+}
+
+if (in_array('--stop', $argv)) {
   // stop has been set! try to kill it
   echo "\n" . '==SHUTTING DOWN TWITTERBOT==' . "\n";
   halt();
   exit;
-} else if (!array_key_exists('--tests-skip', $args)) {
+} else if (!in_array('--tests-skip', $argv)) {
   // run tests
   test();
-  if (array_key_exists('--tests-only', $args)) {
+  if (in_array('--tests-only', $argv)) {
     exit;
   }
 }
@@ -60,45 +60,6 @@ $engine->loop();
 flock($fp, LOCK_UN);
 fclose($fp);
 @unlink(TWITTERBOT_LOCKFILE);
-
-/**
- * Helper method for parsing command line arguments. Taken from the
- * George Schlossnagle book "Advanced PHP Programming" (2004), chpt 5.
- *
- * @param array $default_opt
- * @param string $shortoptions
- * @param array $longoptions
- */
-function getOptions($default_opt, $shortoptions, $longoptions) {
-  $con = new Console_Getopt;
-  $args = Console_Getopt::readPHPArgv();
-  $ret = $con->getopt($args, $shortoptions, $longoptions);
-  if (is_object($ret)) {
-    // this means an error has occurred processing command-line options
-    die($ret->message . "\n" . printHelp());
-  }
-  $opts = array();
-  foreach ($ret[0] as $arr) {
-    $rhs = ($arr[1] !== null ? $arr[1] : true);
-    if (array_key_exists($arr[0], $opts)) {
-      if (is_array($opts[$arr[0]])) {
-        $opts[$ar[0]][] = $rhs;
-      } else {
-        $opts[$arr[0]] = array($opts[$arr[0]], $rhs);
-      }
-    } else {
-      $opts[$arr[0]] = $rhs;
-    }
-  }
-  if (is_array($default_opt)) {
-    foreach ($default_opt as $k => $v) {
-      if (!array_key_exists($k, $opts)) {
-        $opts[$k] = $v;
-      }
-    }
-  }
-  return $opts;
-}
 
 /**
  * Runs tests against the configuration of this bot, to make sure everything
@@ -177,12 +138,12 @@ function test() {
 function printHelp() {
   $retval = "Twitterbot, v2.0\n\n" .
     "php run.php [--start | --stop | --tests-only | --tests-skip " .
-    "| -h ]\n\n" .
+    "| --help ]\n\n" .
     "--start\t\t\tStart the twitterbot daemon\n" .
     "--stop\t\t\tStop the twitterbot daemon\n" .
     "--tests-only\t\tExecute the pre-process tests and exit\n" .
     "--tests-skip\t\tDon't run any tests before launching the daemon\n" .
-    "-h\t\t\tPrints this help\n";
+    "--help or -h\t\tPrints this help\n";
   return $retval;
 }
 

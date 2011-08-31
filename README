@@ -82,7 +82,7 @@ github page, or you can email me: magsol at gmail.
 In order to run this bot, you need:
 
 -PHP 5.x (with pcntl)
--PEAR and its basic libraries (Console_GetOpt)
+-PEAR and its basic libraries
 -MySQL 5.x (though will probably work with 4.x)
 -A brave soul
 
