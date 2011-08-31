@@ -123,12 +123,6 @@ function test() {
       'configuration.' . "\n");
   }
   echo 'passed!' . "\n";
-  echo 'Looking for Console_Getopt...';
-  if (!class_exists('Console_Getopt')) {
-    die('ERROR: Console_Getopt not found. Please check your PEAR ' .
-      'configuration.' . "\n");
-  }
-  echo 'passed!' . "\n";
 }
 
 /**
