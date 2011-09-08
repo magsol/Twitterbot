@@ -12,22 +12,20 @@ if (count($argv) > 2 || in_array('-h', $argv) || in_array('--help', $argv)) {
 	die(printHelp());
 }
 
-// One final sanity check: make sure the user wanted this thing to start.
-if (count($argv) == 2 && !in_array('--start', $argv)) {
-	die(printHelp());
-}
-
 if (in_array('--stop', $argv)) {
   // stop has been set! try to kill it
   echo "\n" . '==SHUTTING DOWN TWITTERBOT==' . "\n";
   halt();
   exit;
-} else if (!in_array('--tests-skip', $argv)) {
-  // run tests
+}
+
+if (in_array('--tests-only', $argv)) {
   test();
-  if (in_array('--tests-only', $argv)) {
-    exit;
-  }
+  exit;
+}
+
+if (!in_array('--tests-skip', $argv)) {
+  test();
 }
 
 echo "\n" . '==POWERING UP TWITTERBOT==' . "\n";
@@ -76,6 +74,14 @@ function test() {
   echo 'passed!' . "\n";
   mysql_close($db);
 
+  // test the the curl libraries are installed
+  echo 'Testing that you have curl installed...';
+  if (!function_exists('curl_init')) {
+    die('ERROR: You do not seem to have a curl library for PHP. Please '.
+        'check your PHP configuration.');
+  }
+  echo 'passed!' . "\n";
+
   // test Twitter OAuth settings
   echo 'Testing OAuth credentials...';
   $obj = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN,
@@ -95,8 +101,7 @@ function test() {
   // test the actions listed in the configuration file
   global $actions;
   foreach ($actions as $action) {
-    echo 'Found action ' . $action['name'] . ', checking that all required ' .
-      'fields are set...';
+    echo 'Found action "' . $action['name'] . '", checking required fields...';
     if (isset($action['name']) && isset($action['file']) &&
         isset($action['class']) && isset($action['active'])) {
       echo "passed!\n";
