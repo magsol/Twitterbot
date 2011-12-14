@@ -71,9 +71,12 @@ class DelayedMarkovPostAction extends Action {
 
     /*** PART 3: Translate the post and send it, if the API key was set ***/
     $API = TwitterAPI::getTwitterAPI();
+    /*
+    ** GOOGLE TRANSLATE API DEPRECATED **
     if (isset($this->googleKey)) {
       $thepost = Translate::translate($thepost, 'en', $this->googleKey);
     }
+    */
     $API->update($thepost);
 
     // destroy the database connection

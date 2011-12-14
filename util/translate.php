@@ -8,6 +8,10 @@ defined('TWITTERBOT') or die('Restricted.');
  * and not an action unto itself, in case other actions wish
  * to use this class.
  *
+ * NOTE: THE GOOGLE TRANSLATE API HAS BEEN DEPRECATED. THIS
+ * FUNCTIONALITY WILL NO LONGER WORK UNLESS YOU HAVE A PAID
+ * SUBSCRIPTION TO THE SERVICE.
+ *
  * @author Shannon Quinn
  */
 class Translate {
