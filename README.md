@@ -35,7 +35,7 @@ We begin by defining this class as follows:
     class ClockAction extends Action {
 
 We are then required to implement at least two other methods: a
-constructor and a run() method:
+constructor and a `run()` method:
 
     public function __construct($name, $active, $params) {
       $this->name = $name;
@@ -56,16 +56,16 @@ constructor and a run() method:
     }
 
 With this basic framework, you can extend it to do just about anything
-you'd like. Set $this->frequency in the __construct() method you wrote
+you'd like. Set `$this->frequency` in the `__construct()` method you wrote
 to provide a different frequency of your Action firing; or, for even
-greater control, override the setNextAttempt() method to completely
+greater control, override the `setNextAttempt()` method to completely
 redefine the frequency with which your Action fires. You can override
-the post_run() method to perform any custom post-Action clean-up or
+the `post_run()` method to perform any custom post-Action clean-up or
 logging.
  
-Put your ClockAction.php file into the actions/ folder (along with
+Put your `ClockAction.php` file into the actions/ folder (along with
 any additional dependencies it may require), and point this Twitterbot
-to it by setting up config.php to point to it (details below in the
+to it by setting up `config.php` to point to it (details below in the
 SETUP section, step 1). Once this is complete, fire up the bot's daemon,
 sit back, and let the Twitter trolling begin :)
 
@@ -94,17 +94,17 @@ Installation
 -----------
 
 1. Fill out the necessary fields in config.php (there are several).
-  - BOT_ACCOUNT: The display name for your bot.
-  - BOT_PASSWORD: The password to log into your bot (will be removed once Twitter's
+  - `BOT_ACCOUNT`: The display name for your bot.
+  - `BOT_PASSWORD`: The password to log into your bot (will be removed once Twitter's
     Streaming API is integrated into OAuth...for now, a necessary evil).
-  - CONSUMER_KEY: OAuth Consumer Key, obtained by creating an app for this bot.
-  - CONSUMER_SECRET: Same as above.
-  - OAUTH_TOKEN: Same as above.
-  - OAUTH_TOKEN_SECRET: Same as above.
-  - DB_NAME: Name of the database this application's data can be stored in.
-  - DB_HOST: Host on which the database resides (usually "localhost").
-  - DB_USER: Username of the account that has admin access to the DB_NAME database.
-  - DB_PASS: Password for the above user.
+  - `CONSUMER_KEY`: OAuth Consumer Key, obtained by creating an app for this bot.
+  - `CONSUMER_SECRET`: Same as above.
+  - `OAUTH_TOKEN`: Same as above.
+  - `OAUTH_TOKEN_SECRET`: Same as above.
+  - `DB_NAME`: Name of the database this application's data can be stored in.
+  - `DB_HOST`: Host on which the database resides (usually "localhost").
+  - `DB_USER`: Username of the account that has admin access to the DB_NAME database.
+  - `DB_PASS`: Password for the above user.
 
   Within the $actions array you have optional definitions (required if you want
 the bot to do anything interesting) to customize how your bot behaves. If you
@@ -124,9 +124,9 @@ to fill in the required fields for any defined Action:
 
 2. Run the bot's install script.
 
-      php install.php
+  `php install.php`
 
-  This will use the database values defined in your config.php to set up your
+  This will use the database values defined in your `config.php` to set up your
 database's schema. For optimal behavior, please only fire this script once.
 It shouldn't cause any unintended behavior if you execute it multiple times
 (it will simply quit if it detects the tables exist already), but why would
@@ -134,7 +134,7 @@ you need to run the install script multiple times anyway?
 
 3. Test the bot's settings.
 
-      php run.php --tests-only
+  `php run.php --tests-only`
 
   This will have the bot run a battery of tests against the settings you've
 indicated. If there are any failures, it will halt immediately and let you
@@ -143,16 +143,16 @@ Action, etc).
 
 4. Run the bot!
 
-      php run.php
+  `php run.php`
 
-  You can include a -h flag to display all the available options. By default
+  You can include a `-h` flag to display all the available options. By default
 (run with no arguments), the script will execute the battery of tests like in
 step 3 but will, pending all tests passing, start up the bot itself. The bot
 will behave as a daemon, detaching itself from the terminal and spawning a child
-process for each custom Action defined in config.php. In order to kill the
+process for each custom Action defined in `config.php`. In order to kill the
 daemon and its child processes, run the command:
 
-      php run.php --stop
+  `php run.php --stop`
 
 Acknowledgements
 ----------------
