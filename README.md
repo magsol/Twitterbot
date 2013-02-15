@@ -5,10 +5,10 @@ This is designed to be a relatively lightweight, flexible framework for
 deploying your own customized and automated twittering bot that more or
 less does whatever you program it to do.
 
-Author: Shannon Quinn
-Project Wiki: http://www.magsol.me/wiki/index.php5?title=SpamBot
-Git repository: https://github.com/magsol/Twitterbot
-Version: 2.0 (alpha)
+  - Author: Shannon Quinn
+  - Project Wiki: http://www.magsol.me/wiki/index.php5?title=SpamBot
+  - Git repository: https://github.com/magsol/Twitterbot
+  - Version: 2.0 (alpha)
 
 Overview
 --------
@@ -124,7 +124,7 @@ to fill in the required fields for any defined Action:
 
 2. Run the bot's install script.
 
-    php install.php
+      php install.php
 
   This will use the database values defined in your config.php to set up your
 database's schema. For optimal behavior, please only fire this script once.
@@ -134,7 +134,7 @@ you need to run the install script multiple times anyway?
 
 3. Test the bot's settings.
 
-    php run.php --tests-only
+      php run.php --tests-only
 
   This will have the bot run a battery of tests against the settings you've
 indicated. If there are any failures, it will halt immediately and let you
@@ -143,7 +143,7 @@ Action, etc).
 
 4. Run the bot!
 
-    php run.php
+      php run.php
 
   You can include a -h flag to display all the available options. By default
 (run with no arguments), the script will execute the battery of tests like in
@@ -152,7 +152,7 @@ will behave as a daemon, detaching itself from the terminal and spawning a child
 process for each custom Action defined in config.php. In order to kill the
 daemon and its child processes, run the command:
 
-    php run.php --stop
+      php run.php --stop
 
 Acknowledgements
 ----------------
