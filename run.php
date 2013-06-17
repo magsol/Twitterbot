@@ -84,7 +84,7 @@ function test() {
 
   // test Twitter OAuth settings
   echo 'Testing OAuth credentials...';
-  $obj = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN,
+  $obj = new TwitterOAuth(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, OAUTH_TOKEN,
     OAUTH_TOKEN_SECRET);
   $retval = $obj->get('account/verify_credentials');
   if (!is_object($retval) || !isset($retval->name)) {
