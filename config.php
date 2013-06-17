@@ -3,8 +3,8 @@
 defined('TWITTERBOT') or die('Restricted.');
 
 // OAuth Authentication variables - DO NOT SHARE THESE
-define('CONSUMER_KEY', 'your consumer key here');
-define('CONSUMER_SECRET', 'your consumer secret here');
+define('TWITTER_CONSUMER_KEY', 'your consumer key here');
+define('TWITTER_CONSUMER_SECRET', 'your consumer secret here');
 define('OAUTH_TOKEN', 'your oauth_token here');
 define('OAUTH_TOKEN_SECRET', 'your oauth_token_secret here');
 
