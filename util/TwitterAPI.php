@@ -33,7 +33,7 @@ class TwitterAPI {
    */
   private function __construct() {
     $this->user = BOT_ACCOUNT;
-    $this->oauth = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, OAUTH_TOKEN,
+    $this->oauth = new TwitterOAuth(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, OAUTH_TOKEN,
       OAUTH_TOKEN_SECRET);
   }
 
