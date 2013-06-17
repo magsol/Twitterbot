@@ -1,5 +1,7 @@
 <?php
 
+require_once("Phirehose.php");
+
 abstract class UserstreamPhirehose extends Phirehose {
 
   const URL_BASE         = 'https://userstream.twitter.com/2/';

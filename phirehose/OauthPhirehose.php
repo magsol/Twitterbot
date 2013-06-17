@@ -1,5 +1,7 @@
 <?php
 
+require_once("Phirehose.php");
+
 abstract class OauthPhirehose extends Phirehose
 {
 
