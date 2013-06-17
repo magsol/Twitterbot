@@ -2,12 +2,6 @@
 
 defined('TWITTERBOT') or die('Restricted.');
 
-// the name of the bot account we'll be hijacking
-// password is needed for the Streaming API, which will hopefully be
-// switching to OAuth very soon, precluding the need for username/password
-define('BOT_ACCOUNT', 'your twitter account username here');
-define('BOT_PASSWORD', 'your twitter account password here');
-
 // OAuth Authentication variables - DO NOT SHARE THESE
 define('CONSUMER_KEY', 'your consumer key here');
 define('CONSUMER_SECRET', 'your consumer secret here');

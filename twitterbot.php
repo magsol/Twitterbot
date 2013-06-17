@@ -41,8 +41,9 @@ class Twitterbot {
         die('Twitterbot: ERROR: ' . $action['name'] . ' is not instantiable!');
       }
     }
-    $this->aggregator = new DataAggregator(BOT_ACCOUNT, BOT_PASSWORD,
+    $this->aggregator = new DataAggregator(OAUTH_TOKEN, OAUTH_TOKEN_SECRET,
       Phirehose::METHOD_SAMPLE);
+    $this->aggregator->setLang('en'); // Set language to filter specific tweets.
   }
 
   /**

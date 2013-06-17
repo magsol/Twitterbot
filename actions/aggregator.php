@@ -3,7 +3,7 @@
 defined('TWITTERBOT') or die('Restricted.');
 
 require_once(BOTROOT . DIRECTORY_SEPARATOR . 'storage.php');
-require_once(PHIREHOSE . 'Phirehose.php');
+require_once(PHIREHOSE . 'OauthPhirehose.php');
 
 /**
  * This class handles reading from the Streaming API and saving any
@@ -15,19 +15,10 @@ require_once(PHIREHOSE . 'Phirehose.php');
  *
  * @author Shannon Quinn
  */
-class DataAggregator extends Phirehose {
+class DataAggregator extends OauthPhirehose {
 
   /** a database handle for storing the data */
   private $db;
-
-  /**
-   * Overridden constructor for initializing the database connection.
-   * @param string $username
-   * @param string $password
-   */
-  public function __construct($username, $password) {
-    return parent::__construct($username, $password, Phirehose::METHOD_SAMPLE);
-  }
 
   /**
    * (non-PHPdoc)
