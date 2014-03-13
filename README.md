@@ -1,6 +1,9 @@
 PHP Twitterbot
 ==============
 
+<span color="red">**DEPRECATION NOTICE**</span>: As of the release of [PyBot](https://github.com/magsol/pybot), this Twitter bot implementation has been deprecated. No further updates will be made to this repository. Apologies for any inconvenience; PHP just wasn't made for this sort of thing.
+
+
 This is designed to be a relatively lightweight, flexible framework for
 deploying your own customized and automated twittering bot that more or
 less does whatever you program it to do.
